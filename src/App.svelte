@@ -1,7 +1,9 @@
 <script>
+	let rawActs = ['','group','total']
+
 	let data = $state([['head','desc','amount'],['type1','value',120],['type2','value',100],['type1','',80]])
 	let acts = $state([])
-	let rawActs = ['','group','total']
+
 	let report = $derived.by(() => {
 		let body = [[]]
 		let footers = []
@@ -31,10 +33,10 @@ Subtotal <input type="checkbox">
 	<thead>
 		<tr>
 			{#each data[0] as col, colindex}
-				<td contenteditable="true" onchange={() => {}}>
+				<td onchange={() => {}}>
 					{col}
 					<select value={acts[colindex]} onchange={(e) => {
-						acts[colindex] = e.target.value
+						acts[colindex] = e.currentTarget.value
 					}}>
 						{#each rawActs as value}
 							<option value={value}>{value}</option>
@@ -48,7 +50,7 @@ Subtotal <input type="checkbox">
 	{#each report.slice(1) as row, rowindex}
 		<tr>
 			{#each row as col, colindex}
-				<td contenteditable="true" onchange={() => {
+				<td onchange={() => {
 	
 				}}>{col}</td>
 			{/each}

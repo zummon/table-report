@@ -1,39 +1,14 @@
 <script>
 	import { onMount } from "svelte";
-	const XLSX = globalThis.XLSX;
-	const multilingual = { en: {}, th: {} };
+	const routes = ["get-pay", "crate"];
 
-	let user = $state({ lang: "en" });
 	let spread = $state([
 		["", "", "", ""],
 		["", "", "", ""],
 		["", "", "", ""],
 		["", "", "", ""],
 	]);
-	let columnTypes = $state([]);
-
-	let report = $derived.by(() => {
-		let data = [];
-		let footer = [];
-		spread[0].forEach((colName, colindex) => {
-			if (["Total"].includes(columnTypes[colindex])) {
-				footer[colindex] = 0;
-			}
-		});
-		spread.slice(1).forEach((row, rowindex) => {
-			data[rowindex] = [];
-			row.forEach((col, colindex) => {
-				if (["Total", "Amount"].includes(columnTypes[colindex])) {
-					const amount = Number(col.replace(/[^0-9.-]/g, ""));
-					data[rowindex][colindex] = amount;
-					footer[colindex] += amount;
-				} else {
-					data[rowindex][colindex] = col;
-				}
-			});
-		});
-		return { data, footer };
-	});
+	let route = $state("");
 
 	function arrize(str) {
 		let result = [];
@@ -46,172 +21,229 @@
 		spread = result;
 	}
 	function datize(value, option) {
-		return new Date(value).toLocaleDateString(user.lang, {
-			day: "numeric",
+		return new Date(value).toLocaleDateString(undefined, {
 			month: "short",
+			weekday: undefined,
+			day: "numeric",
 			year: "numeric",
 			...option,
 		});
-		// month: "long",
-		// weekday: "long",
 	}
 	function monetize(value, option) {
 		value = Number(value);
 		if (value == 0) {
 			return "";
 		} else {
-			return Number(value).toLocaleString(user.lang, {
+			return Number(value).toLocaleString(undefined, {
 				minimumFractionDigits: 2,
 				maximumFractionDigits: 2,
 				...option,
 			});
 		}
-		// let europeanString = "1.500,00";
-		// let number = parseFloat(europeanString.replace(/\./g, '').replace(',', '.'));
 	}
-	function upload(file) {
-		file.arrayBuffer().then((rawTrans) => {
-			const fileTrans = XLSX.read(rawTrans, { cellDates: true });
-			const sheetName = fileTrans.SheetNames[0];
-			const worksheet = fileTrans.Sheets[sheetName];
-			let aoa = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-			spread = aoa;
-		});
+	function numerize(str) {
+		// gemini.google
+		const cleanStr = str.replace(/[^\d.,-]/g, "");
+
+		const lastDotIndex = cleanStr.lastIndexOf(".");
+		const lastCommaIndex = cleanStr.lastIndexOf(",");
+
+		if (lastCommaIndex > lastDotIndex) {
+			const standardized = cleanStr.replace(/\./g, "").replace(",", ".");
+			return parseFloat(standardized);
+		}
+		const standardized = cleanStr.replace(/,/g, "");
+		return parseFloat(standardized);
 	}
 
 	onMount(() => {
 		const params = new URLSearchParams(location.search);
-		const lang = params.get("lang");
-		if (multilingual[lang]) {
-			user.lang = lang;
-		}
 	});
 </script>
 
 <div class="print:hidden flex flex-wrap justify-center gap-4 p-4 select-none">
 	<div class="">
-		<details>
-			<summary
-				class="list-none cursor-pointer text-violet-600 font-semibold text-lg"
-			>
-				Upload
-			</summary>
-			<input
-				class="border"
-				type="file"
-				accept="xlsx"
-				onchange={(e) => {
-					const file = e.currentTarget.files[0];
-					upload(file);
-				}}
-			/>
-		</details>
-	</div>
-	<div class="">
-		<details>
-			<summary
-				class="list-none cursor-pointer text-violet-600 font-semibold text-lg"
-			>
-				input
-			</summary>
-			<textarea
-				class="border"
-				placeholder="Paste copied data here"
-				onchange={(e) => {
-					const value = e.currentTarget.value;
-					arrize(value);
-				}}
-			></textarea>
-		</details>
-	</div>
-	<div class="">
 		<button
-			class="cursor-pointer text-violet-600 font-semibold text-lg"
+			class="btn btn-success"
 			onclick={() => {
 				print();
 			}}
 		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox="0 0 24 24"
+				fill="currentColor"
+				class="size-6"
+			>
+				<path
+					fill-rule="evenodd"
+					d="M7.875 1.5C6.839 1.5 6 2.34 6 3.375v2.99c-.426.053-.851.11-1.274.174-1.454.218-2.476 1.483-2.476 2.917v6.294a3 3 0 0 0 3 3h.27l-.155 1.705A1.875 1.875 0 0 0 7.232 22.5h9.536a1.875 1.875 0 0 0 1.867-2.045l-.155-1.705h.27a3 3 0 0 0 3-3V9.456c0-1.434-1.022-2.7-2.476-2.917A48.716 48.716 0 0 0 18 6.366V3.375c0-1.036-.84-1.875-1.875-1.875h-8.25ZM16.5 6.205v-2.83A.375.375 0 0 0 16.125 3h-8.25a.375.375 0 0 0-.375.375v2.83a49.353 49.353 0 0 1 9 0Zm-.217 8.265c.178.018.317.16.333.337l.526 5.784a.375.375 0 0 1-.374.409H7.232a.375.375 0 0 1-.374-.409l.526-5.784a.373.373 0 0 1 .333-.337 41.741 41.741 0 0 1 8.566 0Zm.967-3.97a.75.75 0 0 1 .75-.75h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H18a.75.75 0 0 1-.75-.75V10.5ZM15 9.75a.75.75 0 0 0-.75.75v.008c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V10.5a.75.75 0 0 0-.75-.75H15Z"
+					clip-rule="evenodd"
+				/>
+			</svg>
 			Print
 		</button>
 	</div>
 	<div class="">
-		<select
-			class="text-violet-600 font-semibold"
-			value={user.lang}
-			onchange={(e) => {
-				const locale = e.currentTarget.value;
-				user.lang = locale;
+		<button
+			class="btn btn-info"
+			onclick={() => {
+				route = "";
 			}}
 		>
-			{#each Object.keys(multilingual) as locale}
-				<option value={locale}>{locale.toUpperCase()}</option>
-			{/each}
-		</select>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor"
+				class="size-6"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"
+				/>
+			</svg>
+			input
+		</button>
 	</div>
+	{#each routes as nav}
+		<div class="">
+			<button
+				class="btn btn-primary"
+				disabled={route == nav}
+				onclick={() => {
+					route = nav;
+				}}
+			>
+				{nav}
+			</button>
+		</div>
+	{/each}
 </div>
 
-<table class="mx-auto">
-	<tbody class="">
-		<tr class="">
-			{#each spread[0] as colName, colindex}
-				<td class="border px-1">
-					<label class="select-none print:hidden">
-						<select
-							class="field-sizing-content"
-							onchange={(e) => {
-								const value = e.currentTarget.value;
-								columnTypes[colindex] = value;
-							}}
-						>
-							<option value="">&nbsp;</option>
-							{#each ["Date", "Amount", "Total",'no-wrap'] as type}
-								<option value={type}>{type}</option>
-							{/each}
-						</select>
-					</label>
-					{colName}
+<div class="p-4 print:p-0">
+{#if (route == routes[0])}
+	{@const report = spread.slice(2).reduce(
+		(prev, curr) => {
+			let cells = []
+			curr.forEach((value, colindex) => {
+				cells[colindex] = value
+			})	
+			prev.data.push(cells);
+
+			return prev;
+		},
+		{ data: [] },
+	)}
+	<table class="w-full">
+		<tbody class="">
+			<tr class="">
+				<td class="text-center" colspan="8">
+					{spread[0][0]}
 				</td>
+			</tr>
+			<tr class="text-center">
+				<td class="border-l border-r border-t border-b px-1">
+					{spread[1][0]}
+				</td>
+				<td class="border-l border-r border-t border-b px-1">
+					{spread[1][1]}
+				</td>
+				<td class="border-l border-r border-t border-b px-1">
+					{spread[1][2]}
+				</td>
+				<td class="border-l border-r border-t border-b px-1">
+					{spread[1][3]}
+				</td>
+				<td class="border-l border-r border-t border-b px-1">
+					{spread[1][4]}
+				</td>
+				<td class="border-l border-r border-t border-b px-1">
+					{spread[1][5]}
+				</td>
+				<td class="border-l border-r border-t border-b px-1">
+					{spread[1][6]}
+				</td>
+				<td class="border-l border-r border-t border-b px-1">
+					{spread[1][7]}
+				</td>
+			</tr>
+			{#each report.data as cells, rowindex}
+				<tr class="">
+					<td
+						class="border-l border-r border-t border-b text-center text-nowrap px-1"
+					>
+						{cells[0]}
+					</td>
+					<td
+						class="border-l border-r border-t border-b text-center text-nowrap px-1"
+					>
+						{cells[1]}
+					</td>
+					<td
+						class="border-l border-r border-t border-b text-center text-nowrap px-1"
+					>
+						{cells[2]}
+					</td>
+					<td
+						class="border-l border-r border-t border-b text-center text-nowrap px-1"
+					>
+						{cells[3]}
+					</td>
+					<td
+						class="border-l border-r border-t border-b px-1"
+					>
+						{cells[4]}
+					</td>
+					<td
+						class="border-l border-r border-t border-b text-right text-nowrap px-1"
+					>
+						{cells[5]}
+					</td>
+					<td
+						class="border-l border-r border-t border-b text-right text-nowrap px-1"
+					>
+						{cells[6]}
+					</td>
+					<td
+						class="border-l border-r border-t border-b text-right text-nowrap px-1"
+					>
+						{cells[7]}
+					</td>
+				</tr>
 			{/each}
-		</tr>
-		{#each report.data as cells, rowindex}
 			<tr class="">
-				{#each cells as value, colindex}
-					{@const columnType = columnTypes[colindex]}
-					<td
-						class="border px-1"
-						class:text-right={["Amount", "Total"].includes(
-							columnType,
-						)}
-						class:text-center={["Date"].includes(columnType)}
-						class:text-nowrap={['Date','no-wrap'].includes(columnType)}
-					>
-						{#if ["Date"].includes(columnType)}
-							{datize(value)}
-						{:else if ["Amount", "Total"].includes(columnType)}
-							{monetize(value)}
-						{:else}
-							{value}
-						{/if}
-					</td>
-				{/each}
+				<td class="border-t"></td>
+				<td class="border-t"></td>
+				<td class="border-t"></td>
+				<td class="border-t"></td>
+				<td class="text-center border-l border-r border-t border-b px-1">
+					{spread.at(-1)[4]}
+				</td>
+				<td class="text-right border-l border-r border-t border-b text-nowrap px-1">
+					{monetize(0)}
+				</td>
+				<td class="text-right border-l border-r border-t border-b text-nowrap px-1">
+					{monetize(0)}
+				</td>
+				<td class="border-t"></td>
 			</tr>
-		{/each}
-		{#if columnTypes.includes("Total")}
-			<tr class="">
-				{#each spread[0] as colName, colindex}
-					<td
-						class={["Total"].includes(columnTypes[colindex])
-							? "text-right border px-1"
-							: ""}
-					>
-						{#if ["Total"].includes(columnTypes[colindex])}
-							{monetize(report.footer[colindex])}
-						{:else}
-							{""}
-						{/if}
-					</td>
-				{/each}
-			</tr>
-		{/if}
-	</tbody>
-</table>
+		</tbody>
+	</table>
+{:else if (route == routes[1])}
+	<table></table>
+{:else}
+	<div class="">
+		<textarea
+			class="textarea w-full"
+			placeholder="Paste copied data here\n1 sd www dd"
+			onchange={(e) => {
+				const value = e.currentTarget.value;
+				arrize(value);
+			}}
+		></textarea>
+	</div>
+{/if}
+</div>

@@ -1,6 +1,10 @@
 <script>
 	import { onMount } from "svelte";
-	const routes = ["group by subtotal", "crate"];
+	const routes = ["Get Pay", "File Doc"];
+	const pasteStructures = [
+		"title\ndate, column name x4, debit, credit, left over\ncarry 0\n12 xx xx xx xx 10 0 0\n...",
+		"",
+	];
 
 	let spread = $state([
 		["", "", "", ""],
@@ -8,7 +12,7 @@
 		["", "", "", ""],
 		["", "", "", ""],
 	]);
-	let route = $state("");
+	let route = $state(0);
 
 	function arrize(str) {
 		let result = [];
@@ -61,10 +65,12 @@
 	});
 </script>
 
-<div class="print:hidden flex flex-wrap justify-center gap-4 p-4 select-none">
+<div
+	class="print:hidden flex flex-wrap justify-center gap-3 px-6 py-4 bg-white/80 backdrop-blur border-b border-neutral-200 shadow-sm sticky top-0 z-10 select-none"
+>
 	<div class="">
 		<button
-			class="btn btn-soft btn-success"
+			class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 font-semibold cursor-pointer transition-all duration-150 hover:bg-emerald-100 hover:border-emerald-300 hover:shadow-sm active:scale-95 active:bg-emerald-200"
 			onclick={() => {
 				print();
 			}}
@@ -84,37 +90,13 @@
 			Print
 		</button>
 	</div>
-	<div class="">
-		<button
-			class="btn btn-soft btn-info"
-			onclick={() => {
-				route = "";
-			}}
-		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke-width="1.5"
-				stroke="currentColor"
-				class="size-6"
-			>
-				<path
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"
-				/>
-			</svg>
-			input
-		</button>
-	</div>
-	{#each routes as nav}
+	{#each routes as nav, index}
 		<div class="">
 			<button
-				class="btn btn-soft btn-accent"
-				disabled={route == nav}
+				class="inline-flex items-center px-4 py-2 rounded-lg border font-semibold cursor-pointer transition-all duration-150 active:scale-95 border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 hover:border-sky-300 hover:shadow-sm active:bg-sky-200 disabled:bg-white"
+				disabled={route === index}
 				onclick={() => {
-					route = nav;
+					route = index;
 				}}
 			>
 				{nav}
@@ -123,8 +105,41 @@
 	{/each}
 </div>
 
+<div class="print:hidden">
+	<div class="max-w-2xl mx-auto mt-4">
+		<label class="inline-flex items-center gap-2 mb-2 font-semibold text-neutral-700">
+			<span class="inline-block">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="size-6"
+				>
+					<path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"
+					/>
+				</svg>
+			</span>
+			<span> Paste copied data here </span>
+		</label>
+
+		<textarea
+			class="w-full min-h-48 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-neutral-800 placeholder-neutral-400 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 hover:border-neutral-300 resize-y"
+			placeholder={pasteStructures[route]}
+			onchange={(e) => {
+				const value = e.currentTarget.value;
+				arrize(value);
+			}}
+		></textarea>
+	</div>
+</div>
+
 <div class="p-4 print:p-0">
-	{#if route == routes[0]}
+	{#if route == 0}
 		{@const report = spread.slice(2).reduce(
 			(prev, curr) => {
 				let cells = [];
@@ -218,7 +233,7 @@
 					<td class="border-t"></td>
 					<td class="border-t"></td>
 					<td class="text-center border-l border-r border-t border-b px-1">
-						{spread.at(-1)[4]}
+						รวมทั้งเดือน
 					</td>
 					<td
 						class="text-right border-l border-r border-t border-b text-nowrap px-1"
@@ -234,18 +249,7 @@
 				</tr>
 			</tbody>
 		</table>
-	{:else if route == routes[1]}
+	{:else if route == 1}
 		<table></table>
-	{:else}
-		<div class="">
-			<textarea
-				class="textarea w-full"
-				placeholder="Paste copied data here\n1 sd www dd"
-				onchange={(e) => {
-					const value = e.currentTarget.value;
-					arrize(value);
-				}}
-			></textarea>
-		</div>
-	{/if}
+	{:else}{/if}
 </div>

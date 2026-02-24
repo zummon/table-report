@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from "svelte";
-	const routes = ["get-pay", "crate"];
+	const routes = ["group by subtotal", "crate"];
 
 	let spread = $state([
 		["", "", "", ""],
@@ -64,7 +64,7 @@
 <div class="print:hidden flex flex-wrap justify-center gap-4 p-4 select-none">
 	<div class="">
 		<button
-			class="btn btn-success"
+			class="btn btn-soft btn-success"
 			onclick={() => {
 				print();
 			}}
@@ -86,7 +86,7 @@
 	</div>
 	<div class="">
 		<button
-			class="btn btn-info"
+			class="btn btn-soft btn-info"
 			onclick={() => {
 				route = "";
 			}}
@@ -111,7 +111,7 @@
 	{#each routes as nav}
 		<div class="">
 			<button
-				class="btn btn-primary"
+				class="btn btn-soft btn-accent"
 				disabled={route == nav}
 				onclick={() => {
 					route = nav;
@@ -124,126 +124,128 @@
 </div>
 
 <div class="p-4 print:p-0">
-{#if (route == routes[0])}
-	{@const report = spread.slice(2).reduce(
-		(prev, curr) => {
-			let cells = []
-			curr.forEach((value, colindex) => {
-				cells[colindex] = value
-			})	
-			prev.data.push(cells);
+	{#if route == routes[0]}
+		{@const report = spread.slice(2).reduce(
+			(prev, curr) => {
+				let cells = [];
+				curr.forEach((value, colindex) => {
+					cells[colindex] = value;
+				});
+				prev.data.push(cells);
 
-			return prev;
-		},
-		{ data: [] },
-	)}
-	<table class="w-full">
-		<tbody class="">
-			<tr class="">
-				<td class="text-center" colspan="8">
-					{spread[0][0]}
-				</td>
-			</tr>
-			<tr class="text-center">
-				<td class="border-l border-r border-t border-b px-1">
-					{spread[1][0]}
-				</td>
-				<td class="border-l border-r border-t border-b px-1">
-					{spread[1][1]}
-				</td>
-				<td class="border-l border-r border-t border-b px-1">
-					{spread[1][2]}
-				</td>
-				<td class="border-l border-r border-t border-b px-1">
-					{spread[1][3]}
-				</td>
-				<td class="border-l border-r border-t border-b px-1">
-					{spread[1][4]}
-				</td>
-				<td class="border-l border-r border-t border-b px-1">
-					{spread[1][5]}
-				</td>
-				<td class="border-l border-r border-t border-b px-1">
-					{spread[1][6]}
-				</td>
-				<td class="border-l border-r border-t border-b px-1">
-					{spread[1][7]}
-				</td>
-			</tr>
-			{#each report.data as cells, rowindex}
+				return prev;
+			},
+			{ data: [] },
+		)}
+		<table class="w-full">
+			<tbody class="">
 				<tr class="">
-					<td
-						class="border-l border-r border-t border-b text-center text-nowrap px-1"
-					>
-						{cells[0]}
-					</td>
-					<td
-						class="border-l border-r border-t border-b text-center text-nowrap px-1"
-					>
-						{cells[1]}
-					</td>
-					<td
-						class="border-l border-r border-t border-b text-center text-nowrap px-1"
-					>
-						{cells[2]}
-					</td>
-					<td
-						class="border-l border-r border-t border-b text-center text-nowrap px-1"
-					>
-						{cells[3]}
-					</td>
-					<td
-						class="border-l border-r border-t border-b px-1"
-					>
-						{cells[4]}
-					</td>
-					<td
-						class="border-l border-r border-t border-b text-right text-nowrap px-1"
-					>
-						{cells[5]}
-					</td>
-					<td
-						class="border-l border-r border-t border-b text-right text-nowrap px-1"
-					>
-						{cells[6]}
-					</td>
-					<td
-						class="border-l border-r border-t border-b text-right text-nowrap px-1"
-					>
-						{cells[7]}
+					<td class="text-center" colspan="8">
+						{spread[0][0]}
 					</td>
 				</tr>
-			{/each}
-			<tr class="">
-				<td class="border-t"></td>
-				<td class="border-t"></td>
-				<td class="border-t"></td>
-				<td class="border-t"></td>
-				<td class="text-center border-l border-r border-t border-b px-1">
-					{spread.at(-1)[4]}
-				</td>
-				<td class="text-right border-l border-r border-t border-b text-nowrap px-1">
-					{monetize(0)}
-				</td>
-				<td class="text-right border-l border-r border-t border-b text-nowrap px-1">
-					{monetize(0)}
-				</td>
-				<td class="border-t"></td>
-			</tr>
-		</tbody>
-	</table>
-{:else if (route == routes[1])}
-	<table></table>
-{:else}
-	<div class="">
-		<textarea
-			class="textarea w-full"
-			placeholder="Paste copied data here\n1 sd www dd"
-			onchange={(e) => {
-				const value = e.currentTarget.value;
-				arrize(value);
-			}}
-		></textarea>
-	</div>
-{/if}
+				<tr class="text-center">
+					<td class="border-l border-r border-t border-b px-1">
+						{spread[1][0]}
+					</td>
+					<td class="border-l border-r border-t border-b px-1">
+						{spread[1][1]}
+					</td>
+					<td class="border-l border-r border-t border-b px-1">
+						{spread[1][2]}
+					</td>
+					<td class="border-l border-r border-t border-b px-1">
+						{spread[1][3]}
+					</td>
+					<td class="border-l border-r border-t border-b px-1">
+						{spread[1][4]}
+					</td>
+					<td class="border-l border-r border-t border-b px-1">
+						{spread[1][5]}
+					</td>
+					<td class="border-l border-r border-t border-b px-1">
+						{spread[1][6]}
+					</td>
+					<td class="border-l border-r border-t border-b px-1">
+						{spread[1][7]}
+					</td>
+				</tr>
+				{#each report.data as cells, rowindex}
+					<tr class="">
+						<td
+							class="border-l border-r border-t border-b text-center text-nowrap px-1"
+						>
+							{cells[0]}
+						</td>
+						<td
+							class="border-l border-r border-t border-b text-center text-nowrap px-1"
+						>
+							{cells[1]}
+						</td>
+						<td
+							class="border-l border-r border-t border-b text-center text-nowrap px-1"
+						>
+							{cells[2]}
+						</td>
+						<td
+							class="border-l border-r border-t border-b text-center text-nowrap px-1"
+						>
+							{cells[3]}
+						</td>
+						<td class="border-l border-r border-t border-b px-1">
+							{cells[4]}
+						</td>
+						<td
+							class="border-l border-r border-t border-b text-right text-nowrap px-1"
+						>
+							{cells[5]}
+						</td>
+						<td
+							class="border-l border-r border-t border-b text-right text-nowrap px-1"
+						>
+							{cells[6]}
+						</td>
+						<td
+							class="border-l border-r border-t border-b text-right text-nowrap px-1"
+						>
+							{cells[7]}
+						</td>
+					</tr>
+				{/each}
+				<tr class="">
+					<td class="border-t"></td>
+					<td class="border-t"></td>
+					<td class="border-t"></td>
+					<td class="border-t"></td>
+					<td class="text-center border-l border-r border-t border-b px-1">
+						{spread.at(-1)[4]}
+					</td>
+					<td
+						class="text-right border-l border-r border-t border-b text-nowrap px-1"
+					>
+						{monetize(0)}
+					</td>
+					<td
+						class="text-right border-l border-r border-t border-b text-nowrap px-1"
+					>
+						{monetize(0)}
+					</td>
+					<td class="border-t"></td>
+				</tr>
+			</tbody>
+		</table>
+	{:else if route == routes[1]}
+		<table></table>
+	{:else}
+		<div class="">
+			<textarea
+				class="textarea w-full"
+				placeholder="Paste copied data here\n1 sd www dd"
+				onchange={(e) => {
+					const value = e.currentTarget.value;
+					arrize(value);
+				}}
+			></textarea>
+		</div>
+	{/if}
 </div>

@@ -1,10 +1,7 @@
 <script>
 	import { onMount } from "svelte";
-	const routes = ["Get Pay", "File Doc"];
-	const pasteStructures = [
-		"title\ndate, column name x4, debit, credit, left over\ncarry 0\n12 xx xx xx xx 10 0 0\n...",
-		"",
-	];
+	const routes = ["Get Pay", "Doc Folder"];
+	const pasteStructures = ["1 title, 8 columns, 2 footers. (Plain)", ""];
 
 	let spread = $state([
 		["", "", "", ""],
@@ -106,57 +103,50 @@
 </div>
 
 <div class="print:hidden">
-	<div class="max-w-2xl mx-auto mt-4">
-		<label class="inline-flex items-center gap-2 mb-2 font-semibold text-neutral-700">
-			<span class="inline-block">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke-width="1.5"
-					stroke="currentColor"
-					class="size-6"
-				>
-					<path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"
-					/>
-				</svg>
+	<div class="max-w-2xl mx-auto mt-4 p-4">
+		<label>
+			<span
+				class="inline-flex items-center gap-2 mb-2 font-semibold text-neutral-700"
+			>
+				<span class="inline-block">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-6"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"
+						/>
+					</svg>
+				</span>
+				<span> Paste copied data here </span>
 			</span>
-			<span> Paste copied data here </span>
+			<textarea
+				class="w-full min-h-48 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-neutral-800 placeholder-neutral-400 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 hover:border-neutral-300 resize-y"
+				placeholder={pasteStructures[route]}
+				onchange={(e) => {
+					const value = e.currentTarget.value;
+					arrize(value);
+				}}
+			></textarea>
 		</label>
-
-		<textarea
-			class="w-full min-h-48 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-neutral-800 placeholder-neutral-400 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 hover:border-neutral-300 resize-y"
-			placeholder={pasteStructures[route]}
-			onchange={(e) => {
-				const value = e.currentTarget.value;
-				arrize(value);
-			}}
-		></textarea>
 	</div>
 </div>
 
 <div class="p-4 print:p-0">
 	{#if route == 0}
-		{@const report = spread.slice(2).reduce(
-			(prev, curr) => {
-				let cells = [];
-				curr.forEach((value, colindex) => {
-					cells[colindex] = value;
-				});
-				prev.data.push(cells);
+		{@const data = spread.slice(2, -2)}
 
-				return prev;
-			},
-			{ data: [] },
-		)}
 		<table class="w-full">
 			<tbody class="">
 				<tr class="">
 					<td class="text-center" colspan="8">
-						{spread[0][0]}
+						&nbsp;{spread[0][0]}&nbsp;
 					</td>
 				</tr>
 				<tr class="text-center">
@@ -173,7 +163,7 @@
 						{spread[1][3]}
 					</td>
 					<td class="border-l border-r border-t border-b px-1">
-						{spread[1][4]}
+						&nbsp;{spread[1][4]}&nbsp;
 					</td>
 					<td class="border-l border-r border-t border-b px-1">
 						{spread[1][5]}
@@ -185,12 +175,14 @@
 						{spread[1][7]}
 					</td>
 				</tr>
-				{#each report.data as cells, rowindex}
+				{#each data as cells, rowindex}
 					<tr class="">
 						<td
-							class="border-l border-r border-t border-b text-center text-nowrap px-1"
+							class="border-l border-r border-t border-b text-center text-nowrap px-1 {rowindex == 0 ? 'text-center':'' }"
 						>
-							{cells[0]}
+							{#if rowindex == 0 || (data[rowindex + 1] && data[rowindex + 1][0] != cells[0])}
+								{cells[0]}
+							{/if}
 						</td>
 						<td
 							class="border-l border-r border-t border-b text-center text-nowrap px-1"
@@ -208,7 +200,7 @@
 							{cells[3]}
 						</td>
 						<td class="border-l border-r border-t border-b px-1">
-							{cells[4]}
+							{cells[4]}&nbsp;
 						</td>
 						<td
 							class="border-l border-r border-t border-b text-right text-nowrap px-1"
@@ -223,27 +215,54 @@
 						<td
 							class="border-l border-r border-t border-b text-right text-nowrap px-1"
 						>
-							{cells[7]}
+							{#if rowindex == 0 || (data[rowindex + 1] && !data[rowindex + 1][7])}
+								{cells[7]}
+							{/if}
 						</td>
 					</tr>
 				{/each}
+				<tr class="">
+					<td class="border-t border-l"></td>
+					<td class="border-t"></td>
+					<td class="border-t"></td>
+					<td class="border-t"></td>
+					<td class="text-center border-l border-r border-t border-b px-1">
+						&nbsp;{spread.at(-2)[4]}&nbsp;
+					</td>
+					<td
+						class="text-right border-l border-r border-t border-b text-nowrap px-1"
+					>
+						{spread.at(-2)[5]}
+					</td>
+					<td
+						class="text-right border-l border-r border-t border-b text-nowrap px-1"
+					>
+						{spread.at(-2)[6]}
+					</td>
+					<td class="border-t border-r"></td>
+				</tr>
 				<tr class="">
 					<td class="border-t"></td>
 					<td class="border-t"></td>
 					<td class="border-t"></td>
 					<td class="border-t"></td>
-					<td class="text-center border-l border-r border-t border-b px-1">
-						รวมทั้งเดือน
+					<td
+						class="text-center border-l border-r border-t px-1"
+						style="border-bottom: 3px double;"
+					>
+						&nbsp;{spread.at(-1)[4]}&nbsp;
 					</td>
 					<td
-						class="text-right border-l border-r border-t border-b text-nowrap px-1"
+						class="text-right border-l border-r border-t text-nowrap px-1"
+						style="border-bottom: 3px double;"
 					>
-						{monetize(0)}
+						{spread.at(-1)[5]}
 					</td>
 					<td
-						class="text-right border-l border-r border-t border-b text-nowrap px-1"
+						class="text-right border-l border-r border-t text-nowrap px-1"
+						style="border-bottom: 3px double;"
 					>
-						{monetize(0)}
+						{spread.at(-1)[6]}
 					</td>
 					<td class="border-t"></td>
 				</tr>

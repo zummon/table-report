@@ -1,14 +1,13 @@
 <script>
 	import { onMount } from "svelte";
+	import GetPay from "./route/GetPay.svelte";
 	const routes = ["Get Pay", "Doc Folder"];
-	const pasteStructures = ["1 title, 8 columns, 2 footers. (Plain)", ""];
+	const pasteStructures = [
+		"1 title; 8 columns; brought forward \n data with first column is date, last 3 columns are amount \n 2 footers \n (Plain)",
+		"",
+	];
 
-	let spread = $state([
-		["", "", "", ""],
-		["", "", "", ""],
-		["", "", "", ""],
-		["", "", "", ""],
-	]);
+	let spread = $state([[]]);
 	let route = $state(0);
 
 	function arrize(str) {
@@ -140,134 +139,7 @@
 
 <div class="p-4 print:p-0">
 	{#if route == 0}
-		{@const data = spread.slice(2, -2)}
-
-		<table class="w-full">
-			<tbody class="">
-				<tr class="">
-					<td class="text-center" colspan="8">
-						&nbsp;{spread[0][0]}&nbsp;
-					</td>
-				</tr>
-				<tr class="text-center">
-					<td class="border-l border-r border-t border-b px-1">
-						{spread[1][0]}
-					</td>
-					<td class="border-l border-r border-t border-b px-1">
-						{spread[1][1]}
-					</td>
-					<td class="border-l border-r border-t border-b px-1">
-						{spread[1][2]}
-					</td>
-					<td class="border-l border-r border-t border-b px-1">
-						{spread[1][3]}
-					</td>
-					<td class="border-l border-r border-t border-b px-1">
-						&nbsp;{spread[1][4]}&nbsp;
-					</td>
-					<td class="border-l border-r border-t border-b px-1">
-						{spread[1][5]}
-					</td>
-					<td class="border-l border-r border-t border-b px-1">
-						{spread[1][6]}
-					</td>
-					<td class="border-l border-r border-t border-b px-1">
-						{spread[1][7]}
-					</td>
-				</tr>
-				{#each data as cells, rowindex}
-					<tr class="">
-						<td
-							class="border-l border-r border-t border-b text-center text-nowrap px-1 {rowindex == 0 ? 'text-center':'' }"
-						>
-							{#if rowindex == 0 || (data[rowindex + 1] && data[rowindex + 1][0] != cells[0])}
-								{cells[0]}
-							{/if}
-						</td>
-						<td
-							class="border-l border-r border-t border-b text-center text-nowrap px-1"
-						>
-							{cells[1]}
-						</td>
-						<td
-							class="border-l border-r border-t border-b text-center text-nowrap px-1"
-						>
-							{cells[2]}
-						</td>
-						<td
-							class="border-l border-r border-t border-b text-center text-nowrap px-1"
-						>
-							{cells[3]}
-						</td>
-						<td class="border-l border-r border-t border-b px-1">
-							{cells[4]}&nbsp;
-						</td>
-						<td
-							class="border-l border-r border-t border-b text-right text-nowrap px-1"
-						>
-							{cells[5]}
-						</td>
-						<td
-							class="border-l border-r border-t border-b text-right text-nowrap px-1"
-						>
-							{cells[6]}
-						</td>
-						<td
-							class="border-l border-r border-t border-b text-right text-nowrap px-1"
-						>
-							{#if rowindex == 0 || (data[rowindex + 1] && !data[rowindex + 1][7])}
-								{cells[7]}
-							{/if}
-						</td>
-					</tr>
-				{/each}
-				<tr class="">
-					<td class="border-t border-l"></td>
-					<td class="border-t"></td>
-					<td class="border-t"></td>
-					<td class="border-t"></td>
-					<td class="text-center border-l border-r border-t border-b px-1">
-						&nbsp;{spread.at(-2)[4]}&nbsp;
-					</td>
-					<td
-						class="text-right border-l border-r border-t border-b text-nowrap px-1"
-					>
-						{spread.at(-2)[5]}
-					</td>
-					<td
-						class="text-right border-l border-r border-t border-b text-nowrap px-1"
-					>
-						{spread.at(-2)[6]}
-					</td>
-					<td class="border-t border-r"></td>
-				</tr>
-				<tr class="">
-					<td class="border-t"></td>
-					<td class="border-t"></td>
-					<td class="border-t"></td>
-					<td class="border-t"></td>
-					<td
-						class="text-center border-l border-r border-t px-1"
-						style="border-bottom: 3px double;"
-					>
-						&nbsp;{spread.at(-1)[4]}&nbsp;
-					</td>
-					<td
-						class="text-right border-l border-r border-t text-nowrap px-1"
-						style="border-bottom: 3px double;"
-					>
-						{spread.at(-1)[5]}
-					</td>
-					<td
-						class="text-right border-l border-r border-t text-nowrap px-1"
-						style="border-bottom: 3px double;"
-					>
-						{spread.at(-1)[6]}
-					</td>
-					<td class="border-t"></td>
-				</tr>
-			</tbody>
-		</table>
+		<GetPay {spread}></GetPay>
 	{:else if route == 1}
 		<table></table>
 	{:else}{/if}

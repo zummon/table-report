@@ -162,7 +162,7 @@
 				<td class="border-t"></td>
 				<td class="border-t"></td>
 				<td class="border-t"></td>
-				<td class="text-center border-l border-r border-t border-b px-1">
+				<td class="text-center border-l border-t border-b px-1">
 					{footer[0][4]}
 				</td>
 				<td class="border-t border-b"></td>

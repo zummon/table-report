@@ -1,15 +1,20 @@
 <script>
 	import { onMount } from "svelte";
 	import GetPay from "./route/GetPay.svelte";
-	const routes = ["Get Pay", "Doc Folder"];
+	import DocFile from "./route/DocFile.svelte";
+	const routes = ["Get Pay", "Doc File"];
 	const pasteStructures = [
 		"1 title; 8 columns; brought forward \n data with first column is date, last 3 columns are amount \n 2 footers \n (Plain)",
-		"",
+		"3 titles; 8 columns \n data with last column is amount \n 1 footer \n (Plain) ",
 	];
 
 	let spread = $state([[]]);
 	let route = $state(0);
 
+	function clearance() {
+		spread = [[]];
+		document.getElementById('input').value = '';
+	}
 	function arrize(str) {
 		let result = [];
 		str.split("\n").forEach((row, rowindex) => {
@@ -92,6 +97,7 @@
 				class="inline-flex items-center px-4 py-2 rounded-lg border font-semibold cursor-pointer transition-all duration-150 active:scale-95 border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 hover:border-sky-300 hover:shadow-sm active:bg-sky-200 disabled:bg-white"
 				disabled={route === index}
 				onclick={() => {
+					clearance();
 					route = index;
 				}}
 			>
@@ -103,11 +109,12 @@
 
 <div class="print:hidden">
 	<div class="max-w-2xl mx-auto mt-4 p-4">
-		<label>
-			<span
+		<div class="flex flex-wrap gap-4 justify-between">
+			<label
 				class="inline-flex items-center gap-2 mb-2 font-semibold text-neutral-700"
+				for="input"
 			>
-				<span class="inline-block">
+				<span class="">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -124,16 +131,25 @@
 					</svg>
 				</span>
 				<span> Paste copied data here </span>
-			</span>
-			<textarea
-				class="w-full min-h-48 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-neutral-800 placeholder-neutral-400 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 hover:border-neutral-300 resize-y"
-				placeholder={pasteStructures[route]}
-				onchange={(e) => {
-					const value = e.currentTarget.value;
-					arrize(value);
-				}}
-			></textarea>
-		</label>
+			</label>
+			<div class="">
+				<button
+					class="cursor-pointer p-2 text-red-700 font-semibold"
+					onclick={() => {
+						clearance();
+					}}>Clear</button
+				>
+			</div>
+		</div>
+		<textarea
+			id="input"
+			class="w-full min-h-48 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-neutral-800 placeholder-neutral-400 shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 hover:border-neutral-300 resize-y"
+			placeholder={pasteStructures[route]}
+			onchange={(e) => {
+				const value = e.currentTarget.value;
+				arrize(value);
+			}}
+		></textarea>
 	</div>
 </div>
 
@@ -141,6 +157,6 @@
 	{#if route == 0}
 		<GetPay {spread}></GetPay>
 	{:else if route == 1}
-		<table></table>
+		<DocFile {spread}></DocFile>
 	{:else}{/if}
 </div>

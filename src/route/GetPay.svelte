@@ -2,7 +2,8 @@
 	let { spread } = $props();
 
 	let body = $derived.by(() => {
-		let result = Object.groupBy(spread.slice(3, -2), (cells) => {
+		let content = spread.slice(3, -2);
+		let result = Object.groupBy(content, (cells) => {
 			return cells[0];
 		});
 
@@ -93,97 +94,102 @@
 			</tr>
 		</tbody>
 		{#each body as [group, data]}
+			{@const content = data.slice(0, -1)}
+			{@const subtotal = data.slice(-1)}
 			<tbody class="break-inside-avoid-page">
-				{#each data as cells, rowindex}
+				{#each content as cells, rowindex}
 					{@const isFirstRow = rowindex == 0}
-					{@const isLastRow = rowindex == data.length - 1}
-					<tr class={isLastRow ? "" : "font-extralight"}>
+					{@const isLastRow = rowindex == content.length - 1}
+					<tr class="font-extralight">
 						<td
-							class="border-l border-r text-center text-nowrap px-1 {isLastRow
-								? 'border-t border-b'
-								: ''}"
-							style={isLastRow
-								? ""
-								: "border-bottom: 1px dotted; border-top: 1px dotted;"}
+							class="border-l border-r text-center text-nowrap px-1 font-normal"
+							style="border-bottom: 1px dotted; border-top: 1px dotted;"
 						>
-							{#if isFirstRow || (data[rowindex + 1] && data[rowindex + 1][0] != cells[0])}
+							{#if isFirstRow}
 								{cells[0]}
 							{/if}
 						</td>
 						<td
-							class="border-l border-r text-center text-nowrap px-1 {isLastRow
-								? 'border-t border-b'
-								: ''}"
-							style={isLastRow
-								? ""
-								: "border-bottom: 1px dotted; border-top: 1px dotted;"}
+							class="border-l border-r text-center text-nowrap px-1"
+							style="border-bottom: 1px dotted; border-top: 1px dotted;"
 						>
 							{cells[1]}
 						</td>
 						<td
-							class="border-l border-r text-center text-nowrap px-1 {isLastRow
-								? 'border-t border-b'
-								: ''}"
-							style={isLastRow
-								? ""
-								: "border-bottom: 1px dotted; border-top: 1px dotted;"}
+							class="border-l border-r text-center text-nowrap px-1"
+							style="border-bottom: 1px dotted; border-top: 1px dotted;"
 						>
 							{cells[2]}
 						</td>
 						<td
-							class="border-l border-r text-center text-nowrap px-1 {isLastRow
-								? 'border-t border-b'
-								: ''}"
-							style={isLastRow
-								? ""
-								: "border-bottom: 1px dotted; border-top: 1px dotted;"}
+							class="border-l border-r text-center text-nowrap px-1"
+							style="border-bottom: 1px dotted; border-top: 1px dotted;"
 						>
 							{cells[3]}
 						</td>
 						<td
-							class="border-l border-r px-1 {isLastRow
-								? 'text-center border-t border-b'
-								: ''}"
-							style={isLastRow
-								? ""
-								: "border-bottom: 1px dotted; border-top: 1px dotted;"}
+							class="border-l border-r px-1"
+							style="border-bottom: 1px dotted; border-top: 1px dotted;"
 						>
 							{cells[4]}
 						</td>
 						<td
-							class="border-l border-r text-right text-nowrap px-1 {isLastRow
-								? 'border-t border-b'
-								: ''}"
-							style={isLastRow
-								? ""
-								: "border-bottom: 1px dotted; border-top: 1px dotted;"}
+							class="border-l border-r text-right text-nowrap px-1"
+							style="border-bottom: 1px dotted; border-top: 1px dotted;"
 						>
 							{cells[5]}
 						</td>
 						<td
-							class="border-l border-r text-right text-nowrap px-1 {isLastRow
-								? 'border-t border-b'
-								: ''}"
-							style={isLastRow
-								? ""
-								: "border-bottom: 1px dotted; border-top: 1px dotted;"}
+							class="border-l border-r text-right text-nowrap px-1"
+							style="border-bottom: 1px dotted; border-top: 1px dotted;"
 						>
 							{cells[6]}
 						</td>
 						<td
-							class="border-l border-r text-right text-nowrap px-1 {isLastRow
-								? 'border-t border-b'
-								: ''}"
-							style={isLastRow
-								? ""
-								: "border-bottom: 1px dotted; border-top: 1px dotted;"}
+							class="border-l border-r text-right text-nowrap px-1 font-normal"
+							style="border-bottom: 1px dotted; border-top: 1px dotted;"
 						>
-							{#if isFirstRow || (data[rowindex + 1] && !data[rowindex + 1][7])}
+							{#if isLastRow}
 								{cells[7]}
 							{/if}
 						</td>
 					</tr>
 				{/each}
+				<tr class="">
+					<td
+						class="border-l border-r text-center text-nowrap px-1 border-t border-b"
+					>
+					</td>
+					<td
+						class="border-l border-r text-center text-nowrap px-1 border-t border-b"
+					>
+					</td>
+					<td
+						class="border-l border-r text-center text-nowrap px-1 border-t border-b"
+					>
+					</td>
+					<td
+						class="border-l border-r text-center text-nowrap px-1 border-t border-b"
+					>
+					</td>
+					<td class="border-l border-r px-1 text-center border-t border-b">
+						{subtotal[0][4]}
+					</td>
+					<td
+						class="border-l border-r text-right text-nowrap px-1 border-t border-b"
+					>
+						{subtotal[0][5]}
+					</td>
+					<td
+						class="border-l border-r text-right text-nowrap px-1 border-t border-b"
+					>
+						{subtotal[0][6]}
+					</td>
+					<td
+						class="border-l border-r text-right text-nowrap px-1 border-t border-b"
+					>
+					</td>
+				</tr>
 			</tbody>
 		{/each}
 		<tbody>
@@ -212,9 +218,7 @@
 				<td class="border-t"></td>
 				<td class="border-t"></td>
 				<td class="border-t"></td>
-				<td
-					class="text-center border-l border-r border-t border-b px-1"
-				>
+				<td class="text-center border-l border-r border-t border-b px-1">
 					{footer[1][4]}
 				</td>
 				<td

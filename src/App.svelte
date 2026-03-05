@@ -107,7 +107,7 @@
 	{/each}
 </div>
 
-<div class="print:hidden">
+<div class="print:hidden select-none">
 	<div class="max-w-2xl mx-auto mt-4 p-4">
 		<div class="flex flex-wrap gap-4 justify-between">
 			<label
